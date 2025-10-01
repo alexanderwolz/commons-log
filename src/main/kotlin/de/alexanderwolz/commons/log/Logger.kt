@@ -1,4 +1,4 @@
-package de.alexanderwolz.common.log
+package de.alexanderwolz.commons.log
 
 import org.slf4j.LoggerFactory
 import kotlin.jvm.javaClass

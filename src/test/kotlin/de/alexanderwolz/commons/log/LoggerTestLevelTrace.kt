@@ -1,4 +1,4 @@
-package de.alexanderwolz.common.log
+package de.alexanderwolz.commons.log
 
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -15,7 +15,7 @@ import kotlin.text.lines
 import kotlin.text.startsWith
 
 
-class LoggerTest {
+class LoggerTestLevelTrace : AbstractLoggerTest() {
 
     @BeforeEach
     fun setupLogger() {
@@ -24,28 +24,16 @@ class LoggerTest {
     }
 
     @Test
-    fun testLogger() {
+    fun testLogLinesWithLevelTrace() {
 
-        val originalErr = System.err
-        val baos = ByteArrayOutputStream()
-        val ps = PrintStream(baos)
-
-        System.setErr(ps)
-
-        val logger = Logger(javaClass)
-        logger.trace { "This is a trace log" }
-        logger.info { "This is an info log" }
-        logger.debug { "This is a debug log" }
-        logger.warn { "This is a warning log" }
-        logger.error { "This is an error log" }
-        logger.error(kotlin.NoSuchElementException("This is an example exception")) { "This is a second error log" }
-
-        System.setErr(originalErr)
-
-        val output = baos.use { it.toString() }
-
-        val logLines = output.lines().filter { it.isNotBlank() }.filter { !it.startsWith("\tat ") }.also {
-            println("*********\n${it.joinToString(separator = "\n")}\n*********")
+        val logLines = saveLogs {
+            val logger = Logger(javaClass)
+            logger.trace { "This is a trace log" }
+            logger.info { "This is an info log" }
+            logger.debug { "This is a debug log" }
+            logger.warn { "This is a warning log" }
+            logger.error { "This is an error log" }
+            logger.error(kotlin.NoSuchElementException("This is an example exception")) { "This is a second error log" }
         }
 
         assertEquals(7, logLines.size)
