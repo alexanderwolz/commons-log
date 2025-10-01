@@ -16,16 +16,16 @@ repositories {
 java {
     withSourcesJar()
     withJavadocJar()
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 }
 
 dependencies {
-    compileOnly("org.slf4j:slf4j-api:2.0.17")
+    api("org.slf4j:slf4j-api:2.0.17")
 
     testImplementation(kotlin("test"))
     testImplementation("org.slf4j:slf4j-simple:2.0.17")
@@ -54,7 +54,7 @@ publishing {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
             pom {
-                name.set("HTTP Client")
+                name.set("Commons Log")
                 description.set("Common logging utilities for Java/Kotlin development")
                 url.set("https://github.com/alexanderwolz/commons-log")
                 licenses {
