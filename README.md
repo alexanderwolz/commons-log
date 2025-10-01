@@ -1,9 +1,9 @@
-# Common Log
+# Commons Log
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/alexanderwolz/common-log)
-![GitHub](https://img.shields.io/github/license/alexanderwolz/common-log)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/alexanderwolz/common-log)
-![GitHub all releases](https://img.shields.io/github/downloads/alexanderwolz/common-log/total?color=informational)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/alexanderwolz/commons-log)
+![GitHub](https://img.shields.io/github/license/alexanderwolz/commons-log)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/alexanderwolz/commons-log)
+![GitHub all releases](https://img.shields.io/github/downloads/alexanderwolz/commons-log/total?color=informational)
 
 ## 🧑‍💻 About
 

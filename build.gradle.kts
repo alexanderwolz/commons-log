@@ -53,11 +53,10 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
-            artifactId = "common-log"
             pom {
                 name.set("HTTP Client")
                 description.set("Common logging utilities for Java/Kotlin development")
-                url.set("https://github.com/alexanderwolz/common-log")
+                url.set("https://github.com/alexanderwolz/commons-log")
                 licenses {
                     license {
                         name.set("AGPL-3.0")
@@ -72,9 +71,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:https://github.com/alexanderwolz/common-log.git")
-                    developerConnection.set("scm:git:ssh://git@github.com/alexanderwolz/common-log.git")
-                    url.set("https://github.com/alexanderwolz/common-log")
+                    connection.set("scm:git:https://github.com/alexanderwolz/commons-log.git")
+                    developerConnection.set("scm:git:ssh://git@github.com/alexanderwolz/commons-log.git")
+                    url.set("https://github.com/alexanderwolz/commons-log")
                 }
             }
         }
