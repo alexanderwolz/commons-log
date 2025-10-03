@@ -1,13 +1,16 @@
+import java.util.Base64
+
 plugins {
     kotlin("jvm") version "2.2.10"
     id("java-library")
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
     id("maven-publish")
+    jacoco
     signing
 }
 
 group = "de.alexanderwolz"
-version = "1.0.0"
+version = "1.1.0"
 
 repositories {
     mavenCentral()
@@ -48,6 +51,22 @@ tasks.jar {
     }
 }
 
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
 //see also https://github.com/gradle-nexus/publish-plugin/tree/v2.0.0
 publishing {
     publications {
@@ -81,8 +100,19 @@ publishing {
 }
 
 signing {
-    useGpgCmd()
-    sign(publishing.publications["mavenJava"])
+    val signingKey = System.getenv("GPG_PRIVATE_KEY")
+    val signingPassword = System.getenv("GPG_PASSPHRASE")
+
+    if (signingKey != null && signingPassword != null) {
+        logger.info("GPG credentials found in System")
+        val decodedKey = String(Base64.getDecoder().decode(signingKey))
+        useInMemoryPgpKeys(decodedKey, signingPassword)
+        sign(publishing.publications["mavenJava"])
+    } else {
+        logger.info("No GPG credentials found in System, using cmd..")
+        useGpgCmd()
+        sign(publishing.publications["mavenJava"])
+    }
 }
 
 nexusPublishing {
@@ -90,7 +120,8 @@ nexusPublishing {
         sonatype {
             nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
             snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+            username.set(System.getenv("SONATYPE_USERNAME"))
+            password.set(System.getenv("SONATYPE_PASSWORD"))
         }
     }
 }
-
