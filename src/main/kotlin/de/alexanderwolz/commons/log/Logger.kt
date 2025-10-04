@@ -6,11 +6,16 @@ import org.slf4j.event.Level
 import kotlin.reflect.KClass
 
 
-class Logger(private val logger: Logger) {
+class Logger(private val logger: Logger, private val appendToStdOut: Boolean = false) {
 
-    constructor(clazz: Class<*>) : this(LoggerFactory.getLogger(clazz))
-    constructor(clazz: KClass<*>) : this(LoggerFactory.getLogger(clazz.java))
-    constructor(name: String) : this(LoggerFactory.getLogger(name))
+    constructor(clazz: Class<*>, appendToStdOut: Boolean = false)
+            : this(LoggerFactory.getLogger(clazz), appendToStdOut)
+
+    constructor(clazz: KClass<*>, appendToStdOut: Boolean = false)
+            : this(LoggerFactory.getLogger(clazz.java), appendToStdOut)
+
+    constructor(name: String, appendToStdOut: Boolean = false)
+            : this(LoggerFactory.getLogger(name), appendToStdOut)
 
     enum class LogLevel {
         TRACE, DEBUG, INFO, WARN, ERROR, OFF
@@ -37,31 +42,51 @@ class Logger(private val logger: Logger) {
 
     fun trace(message: () -> String) {
         if (logger.isTraceEnabled) {
-            logger.trace(message())
+            val message = message()
+            if (appendToStdOut) {
+                println("[TRACE] $message")
+            }
+            logger.trace(message)
         }
     }
 
     fun debug(message: () -> String) {
         if (logger.isDebugEnabled) {
-            logger.debug(message())
+            val message = message()
+            if (appendToStdOut) {
+                println("[DEBUG] $message")
+            }
+            logger.debug(message)
         }
     }
 
     fun info(message: () -> String) {
         if (logger.isInfoEnabled) {
-            logger.info(message())
+            val message = message()
+            if (appendToStdOut) {
+                println("[INFO] $message")
+            }
+            logger.info(message)
         }
     }
 
 
     fun warn(message: () -> String) {
         if (logger.isWarnEnabled) {
-            logger.warn(message())
+            val message = message()
+            if (appendToStdOut) {
+                println("[WARN] $message")
+            }
+            logger.warn(message)
         }
     }
 
     fun error(message: () -> String) {
         if (logger.isErrorEnabled) {
+            val message = message()
+            if (appendToStdOut) {
+                println("[ERROR] $message")
+            }
             logger.error(message())
         }
     }
@@ -74,6 +99,11 @@ class Logger(private val logger: Logger) {
 
     fun error(throwable: Throwable?, message: () -> String) {
         if (logger.isErrorEnabled) {
+            val message = message()
+            if (appendToStdOut) {
+                println("[ERROR] $message")
+                throwable?.printStackTrace()
+            }
             logger.error(message(), throwable)
         }
     }
