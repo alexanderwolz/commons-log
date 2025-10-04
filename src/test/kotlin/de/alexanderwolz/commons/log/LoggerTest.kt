@@ -52,18 +52,57 @@ class LoggerTest {
 
     }
 
-    private fun saveLogs(log: () -> Unit): List<String> {
-        val originalErr = System.err
-        val baos = ByteArrayOutputStream()
-        val ps = PrintStream(baos)
+    @Test
+    fun testLoggingWithStdOut() {
 
-        System.setErr(ps)
+        Logger(javaClass).also {
+            val logLines = saveLogs {
+                it.info { "My Log" }
+            }
+            assertEquals(1, logLines.size)
+        }
+
+        Logger(javaClass, true).also {
+            val logLines = saveLogs {
+                it.info { "My other Log" }
+            }
+            assertEquals(2, logLines.size)
+        }
+
+
+    }
+
+    private fun saveLogs(log: () -> Unit): List<String> {
+
+        val originalOut = System.out
+        val originalErr = System.err
+
+        val streamOut = ByteArrayOutputStream()
+        val streamError = ByteArrayOutputStream()
+        val psOut = PrintStream(streamOut)
+        val psError = PrintStream(streamError)
+
+
+        System.setOut(psOut)
+        System.setErr(psError)
 
         log()
 
+        System.setOut(originalOut)
         System.setErr(originalErr)
 
-        return baos.use { it.toString() }.lines().filter { it.isNotBlank() && !it.startsWith("\tat ") }.also {
+        val allLines = ArrayList<String>().apply {
+            val lines = streamOut.use { it.toString() }.lines().filter { it.isNotBlank() }.toList()
+            addAll(lines)
+        }.apply {
+            val lines = streamError.use { it.toString() }.lines().filter {
+                it.isNotBlank()
+                        && !it.startsWith("\tat ")
+            }.toList()
+            addAll(lines)
+        }
+
+        return allLines.also {
             println("*********\n${it.joinToString(separator = "\n")}\n*********")
         }
     }
