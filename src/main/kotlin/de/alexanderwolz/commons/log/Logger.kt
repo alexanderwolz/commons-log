@@ -2,23 +2,40 @@ package de.alexanderwolz.commons.log
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.slf4j.event.Level
+import kotlin.jvm.javaClass
 import kotlin.reflect.KClass
 
 
-class Logger(private val logger: Logger, private val appendToStdOut: Boolean = false) {
+class Logger(
+    private val logger: Logger,
+    eventListener: ((event: Event) -> Unit)? = null
+) {
 
-    constructor(clazz: Class<*>, appendToStdOut: Boolean = false)
-            : this(LoggerFactory.getLogger(clazz), appendToStdOut)
+    constructor(
+        clazz: Class<*>,
+        eventListener: ((event: Event) -> Unit)? = null
+    ) : this(LoggerFactory.getLogger(clazz), eventListener)
 
-    constructor(clazz: KClass<*>, appendToStdOut: Boolean = false)
-            : this(LoggerFactory.getLogger(clazz.java), appendToStdOut)
+    constructor(
+        clazz: KClass<*>,
+        eventListener: ((event: Event) -> Unit)? = null
+    ) : this(LoggerFactory.getLogger(clazz.java), eventListener)
 
-    constructor(name: String, appendToStdOut: Boolean = false)
-            : this(LoggerFactory.getLogger(name), appendToStdOut)
+    constructor(
+        name: String,
+        eventListener: ((event: Event) -> Unit)? = null
+    ) : this(LoggerFactory.getLogger(name), eventListener)
 
-    enum class LogLevel {
-        TRACE, DEBUG, INFO, WARN, ERROR, OFF
+    private val eventListeners = ArrayList<(event: Event) -> Unit>().apply {
+        eventListener?.let { add(it) }
+    }
+
+    fun addEventListener(listener: (event: Event) -> Unit) {
+        eventListeners.add(listener)
+    }
+
+    fun removeEventListener(listener: (event: Event) -> Unit) {
+        eventListeners.remove(listener)
     }
 
     val isTraceEnabled = logger.isTraceEnabled
@@ -28,65 +45,80 @@ class Logger(private val logger: Logger, private val appendToStdOut: Boolean = f
     val isErrorEnabled = logger.isErrorEnabled
     val name = logger.name
 
-    val level: LogLevel
+    val level: Level
         get() = retrieveLevel()
 
-    private fun retrieveLevel(): LogLevel {
-        if (isTraceEnabled) return LogLevel.TRACE
-        if (isDebugEnabled) return LogLevel.DEBUG
-        if (isInfoEnabled) return LogLevel.INFO
-        if (isWarnEnabled) return LogLevel.WARN
-        if (isErrorEnabled) return LogLevel.ERROR
-        return LogLevel.OFF
+    private fun retrieveLevel(): Level {
+        if (isTraceEnabled) return Level.TRACE
+        if (isDebugEnabled) return Level.DEBUG
+        if (isInfoEnabled) return Level.INFO
+        if (isWarnEnabled) return Level.WARN
+        if (isErrorEnabled) return Level.ERROR
+        return Level.NONE
     }
 
     fun trace(message: () -> String) {
-        if (logger.isTraceEnabled) {
-            val message = message()
-            if (appendToStdOut) {
-                println("[TRACE] $message")
+        if (eventListeners.isNotEmpty()) {
+            val caller = Thread.currentThread().stackTrace[2]
+            val event = Event(Level.TRACE, message(), this, caller, null)
+            eventListeners.forEach {
+                it(event)
             }
-            logger.trace(message)
+        }
+        if (logger.isTraceEnabled) {
+            logger.trace(message())
         }
     }
 
     fun debug(message: () -> String) {
-        if (logger.isDebugEnabled) {
-            val message = message()
-            if (appendToStdOut) {
-                println("[DEBUG] $message")
+        if (eventListeners.isNotEmpty()) {
+            val caller = Thread.currentThread().stackTrace[2]
+            val event = Event(Level.DEBUG, message(), this, caller, null)
+            eventListeners.forEach {
+                it(event)
             }
-            logger.debug(message)
+        }
+        if (logger.isDebugEnabled) {
+            logger.debug(message())
         }
     }
 
     fun info(message: () -> String) {
-        if (logger.isInfoEnabled) {
-            val message = message()
-            if (appendToStdOut) {
-                println("[INFO] $message")
+        if (eventListeners.isNotEmpty()) {
+            val caller = Thread.currentThread().stackTrace[2]
+            val event = Event(Level.INFO, message(), this, caller, null)
+            eventListeners.forEach {
+                it(event)
             }
-            logger.info(message)
+        }
+        if (logger.isInfoEnabled) {
+            logger.info(message())
         }
     }
 
 
     fun warn(message: () -> String) {
-        if (logger.isWarnEnabled) {
-            val message = message()
-            if (appendToStdOut) {
-                println("[WARN] $message")
+        if (eventListeners.isNotEmpty()) {
+            val caller = Thread.currentThread().stackTrace[2]
+            val event = Event(Level.WARN, message(), this, caller, null)
+            eventListeners.forEach {
+                it(event)
             }
-            logger.warn(message)
+        }
+        if (logger.isWarnEnabled) {
+            logger.warn(message())
         }
     }
 
     fun error(message: () -> String) {
-        if (logger.isErrorEnabled) {
-            val message = message()
-            if (appendToStdOut) {
-                println("[ERROR] $message")
+        if (eventListeners.isNotEmpty()) {
+            val caller = Thread.currentThread().stackTrace[2]
+            val event = Event(Level.ERROR, message(), this, caller, null)
+            eventListeners.forEach {
+                it(event)
             }
+        }
+        if (logger.isErrorEnabled) {
             logger.error(message())
         }
     }
@@ -98,12 +130,14 @@ class Logger(private val logger: Logger, private val appendToStdOut: Boolean = f
     }
 
     fun error(throwable: Throwable?, message: () -> String) {
-        if (logger.isErrorEnabled) {
-            val message = message()
-            if (appendToStdOut) {
-                println("[ERROR] $message")
-                throwable?.printStackTrace()
+        if (eventListeners.isNotEmpty()) {
+            val caller = Thread.currentThread().stackTrace[2]
+            val event = Event(Level.ERROR, message(), this, caller, null)
+            eventListeners.forEach {
+                it(event)
             }
+        }
+        if (logger.isErrorEnabled) {
             logger.error(message(), throwable)
         }
     }
