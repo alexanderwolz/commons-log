@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "de.alexanderwolz"
-version = "1.2.0"
+version = "1.3.0"
 
 repositories {
     mavenCentral()
@@ -31,6 +31,7 @@ dependencies {
     api("org.slf4j:slf4j-api:2.0.17")
 
     testImplementation(kotlin("test"))
+    testImplementation("io.mockk:mockk:1.14.6")
     testImplementation("org.slf4j:slf4j-simple:2.0.17")
 }
 
@@ -74,7 +75,7 @@ publishing {
             from(components["java"])
             pom {
                 name.set("Commons Log")
-                description.set("Common logging utilities for Java/Kotlin development")
+                description.set("Common utilities for Java/Kotlin development over SLF4J logging")
                 url.set("https://github.com/alexanderwolz/commons-log")
                 licenses {
                     license {
