@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "de.alexanderwolz"
-version = "1.3.0"
+version = "1.3.1"
 
 repositories {
     mavenCentral()
@@ -37,6 +37,19 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
 }
 
 tasks.jar {
@@ -52,22 +65,6 @@ tasks.jar {
     }
 }
 
-jacoco {
-    toolVersion = "0.8.11"
-}
-
-tasks.test {
-    finalizedBy(tasks.jacocoTestReport)
-}
-
-tasks.jacocoTestReport {
-    dependsOn(tasks.test)
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
-}
-
 //see also https://github.com/gradle-nexus/publish-plugin/tree/v2.0.0
 publishing {
     publications {
@@ -79,8 +76,8 @@ publishing {
                 url.set("https://github.com/alexanderwolz/commons-log")
                 licenses {
                     license {
-                        name.set("AGPL-3.0")
-                        url.set("https://www.gnu.org/licenses/agpl-3.0.html")
+                        name.set("Apache License 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0")
                     }
                 }
                 developers {
