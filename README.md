@@ -21,23 +21,40 @@ You can pull the latest binaries from the central Maven repositories:
 
 with Gradle
 ```kotlin
-implementation("de.alexanderwolz:commons-log:1.3.1")
+implementation("de.alexanderwolz:commons-log:1.4.0")
 ```
 with Maven
 ```xml
 <dependency>
   <groupId>de.alexanderwolz</groupId>
   <artifactId>commons-log</artifactId>
-    <version>1.3.1</version>
+    <version>1.4.0</version>
 </dependency>
 ```
 
 ## 🪄 Example
 
 ```kotlin
-val logger = Logger(javaClass)
+val logger = Logger(javaClass) // or logger<MyService>()
 logger.trace { "This is a trace log" }
+logger.warn(exception) { "Something went wrong" }
 ```
+
+### Event listeners
+
+Listeners receive log events independently of the configured SLF4J log level,
+including the caller, the throwable, a timestamp and the thread name.
+
+```kotlin
+val logger = logger<MyService> { event ->
+    println("${event.timestamp} [${event.threadName}] ${event.level} ${event.caller}: ${event.message}")
+}
+
+// only receive warnings and errors
+logger.addEventListener(Level.WARN) { event -> alerting.send(event.message, event.error) }
+```
+
+Exceptions thrown by a listener are caught and logged, they neither prevent the log output nor other listeners.
 
 - - -
 
